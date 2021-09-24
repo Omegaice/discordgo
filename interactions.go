@@ -34,6 +34,20 @@ func (dp DefaultApplicationCommandPermission) MarshalJSON() ([]byte, error) {
 	return []byte(`null`), nil
 }
 
+func (dp *DefaultApplicationCommandPermission) UnmarshalJSON(bytes []byte) error {
+	result := true
+	if err := json.Unmarshal(bytes, &result); err != nil {
+		return err
+	}
+
+	if result {
+		*dp = DefaultApplicationCommandPermissionAllow
+	} else {
+		*dp = DefaultApplicationCommandPermissionDeny
+	}
+	return nil
+}
+
 // ApplicationCommandType represents the type of application command.
 type ApplicationCommandType uint8
 
