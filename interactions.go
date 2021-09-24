@@ -15,6 +15,25 @@ import (
 // InteractionDeadline is the time allowed to respond to an interaction.
 const InteractionDeadline = time.Second * 3
 
+type DefaultApplicationCommandPermission uint8
+
+const (
+	DefaultApplicationCommandPermissionNone DefaultApplicationCommandPermission = iota // 0, so will be the default value of the field
+	DefaultApplicationCommandPermissionDeny
+	DefaultApplicationCommandPermissionAllow
+)
+
+func (dp DefaultApplicationCommandPermission) MarshalJSON() ([]byte, error) {
+	switch dp {
+	case DefaultApplicationCommandPermissionAllow:
+		return []byte(`true`), nil
+	case DefaultApplicationCommandPermissionDeny:
+		return []byte(`false`), nil
+	}
+	// The field is set as omitempty, so if we will output null it will omit this field: https://play.golang.org/p/HIIhLa0mGVN
+	return []byte(`null`), nil
+}
+
 // ApplicationCommandType represents the type of application command.
 type ApplicationCommandType uint8
 
@@ -38,7 +57,8 @@ type ApplicationCommand struct {
 	Description string `json:"description,omitempty"`
 	Version     string `json:"version,omitempty"`
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Options []*ApplicationCommandOption `json:"options"`
+	Options           []*ApplicationCommandOption         `json:"options"`
+	DefaultPermission DefaultApplicationCommandPermission `json:"default_permission,omitempty"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
